@@ -35,10 +35,6 @@ login.post("/login", async (c) => {
 
 login.post("/signup", async (c) => {
   const { email, password } = await c.req.json();
-  if (!email || !password) {
-    return c.json({ error: "Email and password required" });
-  }
-
   const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_KEY);
 
   const { data, error } = await supabase.auth.signUp({
@@ -46,6 +42,14 @@ login.post("/signup", async (c) => {
     password: password,
   });
 
+  return c.json({ data: data, error: error });
+});
+
+login.get("/twitter", async (c) => {
+  const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_KEY);
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "twitter",
+  });
   return c.json({ data: data, error: error });
 });
 
