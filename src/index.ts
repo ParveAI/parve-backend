@@ -3,7 +3,7 @@ import { cors } from "hono/cors";
 import { createClient } from "@supabase/supabase-js";
 import user from "./supabase";
 import image from "./image";
-import authorization from "./authorization";
+import profile from "./profile";
 
 type Bindings = {
   SUPABASE_URL: string;
@@ -36,6 +36,6 @@ app.get("/", (c) => c.json({ parve: "Welcome to Parve AI" }));
 
 app.route("/user", user);
 app.route("/image", image);
-app.route("/auth", authorization);
+app.route("/profile", profile);
 
 export default app;
