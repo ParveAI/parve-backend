@@ -12,13 +12,16 @@ const image = new Hono<{ Bindings: Bindings }>();
 image.post("toText", async (c) => {
   const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_KEY);
   const image = await c.req.blob(); // TODO: text olarak çekip direkt istek atılacak ocr
+  var userId;
   var name;
 
   // @ts-ignore
   if (!!c.user) {
     // @ts-ignore
-    name = `${c.user.data.user.id}/${Date.now()}`;
+    userId = c.user.data.user.id;
+    name = `${userId}/${Date.now()}`;
   } else {
+    userId = null;
     name = `unknown/${Date.now()}${Math.random().toString().split(".")[1]}`;
   }
 
@@ -36,7 +39,25 @@ image.post("toText", async (c) => {
     return data.ParsedResults[0].ParsedText;
   });
 
-  return c.json({ text: ocrData, imageUrl: url });
+
+
+  const { data: questionData, error: questionError } = await supabase
+    .from("questions")
+    .insert([
+      {
+        image: url.toString(),
+        language: "ENG",
+        ocr_text: ocrData.toString(),
+        user: userId,
+      },
+    ])
+    .select("*");
+
+  if (questionError) {
+    return c.json({ error: questionError }, 400);
+  }
+
+  return c.json({ question: questionData[0] });
 });
 
 export default image;
