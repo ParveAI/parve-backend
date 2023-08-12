@@ -33,13 +33,15 @@ login.post("/login", async (c) => {
       email: data.user.email,
       fullname: data.user.user_metadata.fullname,
       avatar: data.user.user_metadata.avatar,
-
-    }
+    },
   });
 });
 
 login.post("/signup", async (c) => {
-  const { email, password, fullname } = await c.req.json();
+  const { email, password, fullname, username } = await c.req.json();
+  if (!email || !password || !username) {
+    return c.json({ error: "Please fill all fields" });
+  }
   const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_KEY);
 
   const key = email.split("@")[0]; // TODO: save it to bucket
@@ -51,6 +53,7 @@ login.post("/signup", async (c) => {
     options: {
       data: {
         confirmation_sent_at: Date.now(),
+        username: username,
         avatar: url,
         fullname: fullname,
       },
