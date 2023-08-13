@@ -31,6 +31,7 @@ login.post("/login", async (c) => {
     user: {
       id: data.user.id,
       email: data.user.email,
+      username: data.user.user_metadata.username,
       fullname: data.user.user_metadata.fullname,
       avatar: data.user.user_metadata.avatar,
     },
@@ -54,8 +55,8 @@ login.post("/signup", async (c) => {
       data: {
         confirmation_sent_at: Date.now(),
         username: username,
-        avatar: url,
         fullname: fullname,
+        avatar: url,
       },
     },
   });

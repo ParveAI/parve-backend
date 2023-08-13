@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { createClient } from "@supabase/supabase-js";
-import { ocr } from "./utils/ocr";
+import { ocr } from "../utils/ocr";
 
 type Bindings = {
   SUPABASE_URL: string;
@@ -18,9 +18,10 @@ image.post("toText", async (c) => {
   // @ts-ignore
   if (!!c.user) {
     // @ts-ignore
-    userId = c.user.data.user.id;
+    userId = c.user.data.user.user_metadata.username;
     name = `${userId}/${Date.now()}`;
   }
+
   const { data, error } = await supabase.storage
     .from("images")
     .upload(name, image)
@@ -38,7 +39,7 @@ image.post("toText", async (c) => {
   const ocrData = await ocr(url).then((data: any) => {
     return data.ParsedResults[0].ParsedText;
   });
-
+  
   const { data: questionData, error: questionError } = await supabase
     .from("questions")
     .insert([
@@ -47,6 +48,7 @@ image.post("toText", async (c) => {
         language: "ENG",
         ocr_text: ocrData.toString(),
         user: userId,
+        private: false,
       },
     ])
     .select("*");
