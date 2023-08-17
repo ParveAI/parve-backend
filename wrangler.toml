@@ -1,4 +1,4 @@
-name = "parve-backend"
+name = "api"
 compatibility_date = "2023-01-01"
 
 main="./src/index"
