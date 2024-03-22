@@ -1,19 +1,13 @@
 import { Hono } from "hono";
 import { createClient } from "@supabase/supabase-js";
 
-type Bindings = {
-  SUPABASE_URL: string;
-  SUPABASE_KEY: string;
-};
 
 const profile = new Hono<{ Bindings: Bindings }>();
 
 profile.get("/me", async (c, next) => {
-  // @ts-ignore
-  if (!!!c.user) {
+  if (!c.user) {
     return c.json({ error: "Not logged in" }, 400);
   }
-  // @ts-ignore
   return c.json({ user: c.user });
 });
 
@@ -34,8 +28,7 @@ profile.get("/:user", async (c, next) => {
   data.myProfile = false;
 
 
-  // @ts-ignore
-  if (!!c.user && c.user.data.user.user_metadata.username === data.user_name) {
+  if (c.user && c.user?.data?.user?.user_metadata.username === data.user_name) {
 
     data.myProfile = true;
   }

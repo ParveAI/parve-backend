@@ -1,17 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 
-// const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY)
-
-type Bindings = {
-  SUPABASE_URL: string;
-  SUPABASE_KEY: string;
-};
-
 const login = new Hono<{ Bindings: Bindings }>();
 
 login.post("/login", async (c) => {
-  const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_KEY);
+  const { SUPABASE_URL, SUPABASE_KEY } = c.env;
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
   const { email, password } = await c.req.json();
   if (!email || !password) {
     return c.json({ error: "Email and password required" });
@@ -39,11 +33,12 @@ login.post("/login", async (c) => {
 });
 
 login.post("/signup", async (c) => {
+  const { SUPABASE_URL, SUPABASE_KEY } = c.env;
   const { email, password, fullname, username } = await c.req.json();
   if (!email || !password || !username) {
     return c.json({ error: "Please fill all fields" });
   }
-  const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_KEY);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const key = email.split("@")[0]; // TODO: save it to bucket
   const url = `https://api.dicebear.com/6.x/bottts-neutral/svg?seed=${key}&backgroundColor=8e24aa,b6e3f4,c0aede,d81b60,ffd5dc&eyes=bulging,eva,frame1,frame2,happy,hearts,robocop,roundFrame01,roundFrame02,sensor,shade01&mouth=bite,diagram,grill03,smile01,square01,square02`;
@@ -72,7 +67,8 @@ login.post("/signup", async (c) => {
 });
 
 login.get("/twitter", async (c) => {
-  const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_KEY);
+  const { SUPABASE_URL, SUPABASE_KEY } = c.env;
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "twitter",
   });

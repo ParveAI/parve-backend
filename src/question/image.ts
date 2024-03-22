@@ -1,12 +1,7 @@
 import { Hono } from "hono";
 import { createClient } from "@supabase/supabase-js";
 import { ocr } from "../utils/ocr";
-
-type Bindings = {
-  SUPABASE_URL: string;
-  SUPABASE_KEY: string;
-};
-
+ 
 const image = new Hono<{ Bindings: Bindings }>();
 
 image.post("toText", async (c) => {

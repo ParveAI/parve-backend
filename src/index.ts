@@ -1,10 +1,11 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, UserResponse } from "@supabase/supabase-js";
 import user from "./user/supabase";
 import image from "./question/image";
 import profile from "./user/profile";
 import history from "./question/history";
+import upload from "./question/upload";
 
 type Bindings = {
   SUPABASE_URL: string;
@@ -14,22 +15,24 @@ type Bindings = {
 const app = new Hono<{ Bindings: Bindings }>();
 
 app.use("*", cors());
+declare module "hono" {
+  interface Context {
+    user?: UserResponse;
+  }
+}
 
 app.use("/*", async (c, next) => {
   const access_token = c.req.header("authorization");
-  const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_KEY, {
+  const { SUPABASE_URL, SUPABASE_KEY } = c.env;
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
     global: { headers: { Authorization: `${access_token}` } },
   });
   const user = await supabase.auth.getUser();
 
-  if (user.error) {
-    console.log("not logged in");  
-    return next();
-  }
-  // @ts-ignore
-  c.user = user;
-  console.log("logged in!!!");
+  if (user.error) return next();
 
+  c.user = user;
   return next();
 });
 
@@ -39,5 +42,6 @@ app.route("/user", user);
 app.route("/image", image);
 app.route("/profile", profile);
 app.route("/history", history);
+app.route("/upload", upload);
 
 export default app;
