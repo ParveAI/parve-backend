@@ -4,12 +4,11 @@ import { createClient } from "@supabase/supabase-js";
 const history = new Hono<{ Bindings: Bindings }>();
 
 history.get("myQuestions", async (c) => {
-  const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_KEY);
   if (!c.user?.data.user) {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await c.supabase
     .from("questions")
     .select("*")
     .eq("user", c.user.data.user.user_metadata.username);
@@ -21,8 +20,6 @@ history.get("myQuestions", async (c) => {
 });
 
 history.post("save", async (c) => {
-  const { SUPABASE_URL, SUPABASE_KEY } = c.env;
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
   const id = c.req.queries("id");
 
   const {
@@ -34,7 +31,7 @@ history.post("save", async (c) => {
 
   if (!c.user?.data.user || id) return c.json({ error: "Unauthorized" }, 401);
 
-  const { data, error } = await supabase
+  const { data, error } = await c.supabase
     .from("questions")
     .update({
       collection,
@@ -51,11 +48,9 @@ history.post("save", async (c) => {
 });
 
 history.get(":user", async (c) => {
-  const { SUPABASE_URL, SUPABASE_KEY } = c.env;
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
   const user = c.req.param("user");
 
-  const { data, error } = await supabase
+  const { data, error } = await c.supabase
     .from("questions")
     .select("*")
     .eq("user", user)

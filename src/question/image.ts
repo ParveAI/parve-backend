@@ -5,7 +5,6 @@ import { ocr } from "../utils/ocr";
 const image = new Hono<{ Bindings: Bindings }>();
 
 image.post("toText", async (c) => {
-  const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_KEY);
   const image = await c.req.blob(); // TODO: text olarak çekip direkt istek atılacak ocr
   var userId = null;
   var name = `unknown/${Date.now()}${Math.random().toString().split(".")[1]}`;
@@ -17,7 +16,7 @@ image.post("toText", async (c) => {
     name = `${userId}/${Date.now()}`;
   }
 
-  const { data, error } = await supabase.storage
+  const { data, error } = await c.supabase.storage
     .from("images")
     .upload(name, image)
     .then((data: any) => {
@@ -35,7 +34,7 @@ image.post("toText", async (c) => {
     return data.ParsedResults[0].ParsedText;
   });
   
-  const { data: questionData, error: questionError } = await supabase
+  const { data: questionData, error: questionError } = await c.supabase
     .from("questions")
     .insert([
       {

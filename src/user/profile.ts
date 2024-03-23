@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { createClient } from "@supabase/supabase-js";
 
 
 const profile = new Hono<{ Bindings: Bindings }>();
@@ -13,9 +12,8 @@ profile.get("/me", async (c, next) => {
 
 profile.get("/:user", async (c, next) => {
   const username = c.req.param("user");
-  const supabase = createClient(c.env.SUPABASE_URL, c.env.SUPABASE_KEY);
 
-  const { data, error } = await supabase
+  const { data, error } = await c.supabase
     .from("profile")
     .select("*")
     .eq("user_name", username)

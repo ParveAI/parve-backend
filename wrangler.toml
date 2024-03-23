@@ -2,3 +2,6 @@ name = "api"
 compatibility_date = "2023-01-01"
 
 main="./src/index"
+
+[vars]
+SUPABASE_URL = "https://ewbexihththlkcqybuoa.supabase.co"
